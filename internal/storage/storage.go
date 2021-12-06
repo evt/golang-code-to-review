@@ -27,6 +27,8 @@ func (s *Store) Load(key string) (interface{}, bool) {
 
 // Remove removes given key
 func (s *Store) Remove(key string) {
+	s.Lock()
+	defer s.Unlock()
 	delete(s.values, key)
 }
 
