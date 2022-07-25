@@ -8,28 +8,8 @@ type ItemRepository struct {
 	db *pgx.Conn
 }
 
-type Config struct {
-	Host     string
-	Port     uint16
-	Database string
-	User     string
-	Password string
-}
-
-func NewItemRepository(cfg Config) (*ItemRepository, error) {
-	db, err := pgx.Connect(pgx.ConnConfig{
-		Host:     cfg.Host,
-		Port:     cfg.Port,
-		Database: cfg.Database,
-		User:     cfg.User,
-		Password: cfg.Password,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &ItemRepository{db}, nil
+func NewItemRepository(db *pgx.Conn) *ItemRepository {
+	return &ItemRepository{db: db}
 }
 
 func (r *ItemRepository) Add(items []Item) error {
