@@ -11,7 +11,7 @@ type MyStoreStore struct {
 	Dbh *sql.DB
 }
 
-func myStoreConstructor(config map[string]string) MyStoreStore {
+func MyStoreConstructor(config map[string]string) MyStoreStore {
 	db, _ := sql.Open("mysql", "database="+config["db"])
 	return MyStoreStore{nil, db}
 }
