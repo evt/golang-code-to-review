@@ -48,7 +48,7 @@ func (r *ItemRepository) Add(items []Item) error {
 }
 
 func (r *ItemRepository) Update(item Item) error {
-	_, err := r.db.Exec("UPDATE item SET title = $1 WHERE id = $2", item.Title, item.Id)
+	_, err := r.db.Exec("UPDATE items SET title = $1 WHERE id = $2", item.Title, item.Id)
 	if err != nil {
 		return err
 	}
