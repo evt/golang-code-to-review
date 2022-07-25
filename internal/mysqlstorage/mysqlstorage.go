@@ -8,7 +8,7 @@ import (
 
 type MyStoreStore struct {
 	context.Context
-	Dbh *sql.DB
+	db *sql.DB
 }
 
 func MyStoreConstructor(config map[string]string) MyStoreStore {
@@ -17,7 +17,7 @@ func MyStoreConstructor(config map[string]string) MyStoreStore {
 }
 
 func (s MyStoreStore) Insert(items []string) {
-	stmt, err := s.Dbh.Prepare("INSERT INTO items(id, title) VALUES(?, ?")
+	stmt, err := s.db.Prepare("INSERT INTO items(id, title) VALUES(?, ?")
 	if err != nil {
 		panic(err)
 	}
@@ -28,7 +28,7 @@ func (s MyStoreStore) Insert(items []string) {
 }
 
 func (s *MyStoreStore) Update(id int, title string) {
-	stmt, err := s.Dbh.Prepare(fmt.Sprintf("UPDATE INTO users SET title = '%s' WHERE id = %d", title, id))
+	stmt, err := s.db.Prepare(fmt.Sprintf("UPDATE INTO users SET title = '%s' WHERE id = %d", title, id))
 	if err != nil {
 		panic(err)
 	}
