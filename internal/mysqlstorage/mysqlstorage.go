@@ -1,44 +1,54 @@
 package mysqlstorage
 
 import (
-	"context"
-	"database/sql"
-	"fmt"
+	"github.com/jackc/pgx"
 )
 
 type MyStoreStore struct {
-	context.Context
-	db *sql.DB
+	db *pgx.Conn
 }
 
-func MyStoreConstructor(config map[string]string) MyStoreStore {
-	db, _ := sql.Open("mysql", "database="+config["db"])
-	return MyStoreStore{nil, db}
+type Config struct {
+	Host     string
+	Port     uint16
+	Database string
+	User     string
+	Password string
 }
 
-func (s MyStoreStore) Insert(items []string) error {
-	stmt, err := s.db.Prepare("INSERT INTO items(id, title) VALUES(?, ?")
+func MyStoreConstructor(cfg Config) (*MyStoreStore, error) {
+	db, err := pgx.Connect(pgx.ConnConfig{
+		Host:     cfg.Host,
+		Port:     cfg.Port,
+		Database: cfg.Database,
+		User:     cfg.User,
+		Password: cfg.Password,
+	})
+
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for i, item := range items {
-		_, err := stmt.ExecContext(s.Context, i, item)
-		if err != nil {
-			return err
-		}
+	return &MyStoreStore{db}, nil
+}
+
+func (s MyStoreStore) Insert(items []Item) error {
+	rows := make([][]interface{}, 0, len(items))
+
+	for _, item := range items {
+		rows = append(rows, []interface{}{item.Title})
+	}
+
+	_, err := s.db.CopyFrom([]string{"items"}, []string{"id", "title"}, pgx.CopyFromRows(rows))
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (s *MyStoreStore) Update(id int, title string) error {
-	stmt, err := s.db.Prepare(fmt.Sprintf("UPDATE INTO users SET title = '%s' WHERE id = %d", title, id))
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.ExecContext(s.Context)
+func (s *MyStoreStore) Update(item Item) error {
+	_, err := s.db.Exec("UPDATE item SET title = $1 WHERE id = $2", item.Title, item.Id)
 	if err != nil {
 		return err
 	}
