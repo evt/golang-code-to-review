@@ -1,10 +1,10 @@
-package mysqlstorage
+package model
 
 import (
 	"github.com/jackc/pgx"
 )
 
-type MyStoreStore struct {
+type ItemRepository struct {
 	db *pgx.Conn
 }
 
@@ -16,7 +16,7 @@ type Config struct {
 	Password string
 }
 
-func MyStoreConstructor(cfg Config) (*MyStoreStore, error) {
+func NewItemRepository(cfg Config) (*ItemRepository, error) {
 	db, err := pgx.Connect(pgx.ConnConfig{
 		Host:     cfg.Host,
 		Port:     cfg.Port,
@@ -29,17 +29,17 @@ func MyStoreConstructor(cfg Config) (*MyStoreStore, error) {
 		return nil, err
 	}
 
-	return &MyStoreStore{db}, nil
+	return &ItemRepository{db}, nil
 }
 
-func (s MyStoreStore) Insert(items []Item) error {
+func (r *ItemRepository) Add(items []Item) error {
 	rows := make([][]interface{}, 0, len(items))
 
 	for _, item := range items {
 		rows = append(rows, []interface{}{item.Title})
 	}
 
-	_, err := s.db.CopyFrom([]string{"items"}, []string{"id", "title"}, pgx.CopyFromRows(rows))
+	_, err := r.db.CopyFrom([]string{"items"}, []string{"id", "title"}, pgx.CopyFromRows(rows))
 	if err != nil {
 		return err
 	}
@@ -47,8 +47,8 @@ func (s MyStoreStore) Insert(items []Item) error {
 	return nil
 }
 
-func (s *MyStoreStore) Update(item Item) error {
-	_, err := s.db.Exec("UPDATE item SET title = $1 WHERE id = $2", item.Title, item.Id)
+func (r *ItemRepository) Update(item Item) error {
+	_, err := r.db.Exec("UPDATE item SET title = $1 WHERE id = $2", item.Title, item.Id)
 	if err != nil {
 		return err
 	}
