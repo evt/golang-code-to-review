@@ -23,7 +23,10 @@ func (s MyStoreStore) Insert(items []string) error {
 	}
 
 	for i, item := range items {
-		stmt.ExecContext(s.Context, i, item)
+		_, err := stmt.ExecContext(s.Context, i, item)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -35,7 +38,10 @@ func (s *MyStoreStore) Update(id int, title string) error {
 		return err
 	}
 
-	stmt.ExecContext(s.Context)
+	_, err = stmt.ExecContext(s.Context)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
