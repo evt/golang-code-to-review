@@ -16,22 +16,26 @@ func MyStoreConstructor(config map[string]string) MyStoreStore {
 	return MyStoreStore{nil, db}
 }
 
-func (s MyStoreStore) Insert(items []string) {
+func (s MyStoreStore) Insert(items []string) error {
 	stmt, err := s.db.Prepare("INSERT INTO items(id, title) VALUES(?, ?")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for i, item := range items {
 		stmt.ExecContext(s.Context, i, item)
 	}
+
+	return nil
 }
 
-func (s *MyStoreStore) Update(id int, title string) {
+func (s *MyStoreStore) Update(id int, title string) error {
 	stmt, err := s.db.Prepare(fmt.Sprintf("UPDATE INTO users SET title = '%s' WHERE id = %d", title, id))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	stmt.ExecContext(s.Context)
+
+	return nil
 }
